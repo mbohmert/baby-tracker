@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Suivi Lait Bébé</title>
+</head>
+<body>
+    <h2>Formulaire de Suivi</h2>
+    <form method="post">
+        <label>Date :</label><br>
+        <input type="date" name="date" required><br><br>
+
+        <label>Heure du repas :</label><br>
+        <input type="time" name="time" required><br><br>
+
+        <label>Quantité (mL) :</label><br>
+        <input type="number" name="milk" required><br><br>
+
+        <label>Change :</label><br>
+        <select name="changed">
+            <option>Oui</option>
+            <option>Non</option>
+        </select><br><br>
+
+        <label>Pipi :</label><br>
+        <select name="pee">
+            <option>Oui</option>
+            <option>Non</option>
+        </select><br><br>
+
+        <label>Caca :</label><br>
+        <select name="poo">
+            <option>Oui</option>
+            <option>Non</option>
+        </select><br><br>
+
+        <label>Remarques :</label><br>
+        <textarea name="comment" rows="3"></textarea><br><br>
+
+        <button type="submit">Soumettre</button>
+    </form>
+</body>
+</html>
