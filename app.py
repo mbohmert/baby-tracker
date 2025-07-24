@@ -1,12 +1,12 @@
 from flask import Flask, request, render_template, redirect, url_for, session
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
+from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = "a-very-secret-key"  # Replace with your own secret key
+app.secret_key = "a-very-secret-key"
 PASSWORD = "anatole"
 
-# Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
 client = gspread.authorize(creds)
@@ -14,6 +14,10 @@ sheet = client.open("Suivi enfants lait").worksheet("Heure de lait_A")
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    return redirect(url_for("dashboard"))
+
+@app.route("/dashboard", methods=["GET", "POST"])
+def dashboard():
     if "logged_in" not in session:
         return redirect(url_for("login"))
 
@@ -29,22 +33,62 @@ def index():
         try:
             col_b = sheet.col_values(2)
             last_row = len(col_b)
-            previous_formula = sheet.cell(last_row, 4).value  # Column D
+            previous_formula = sheet.cell(last_row, 4).value
             insert_row_index = last_row + 1
             new_row = ["", date, time, previous_formula, quantite, change, pipi, caca, remarques]
             sheet.insert_row(new_row, insert_row_index)
-            return "✅ Données enregistrées avec succès !"
+            return redirect(url_for("confirmation"))
         except Exception as e:
-            return f"❌ Erreur lors de l'enregistrement: {str(e)}"
+            return f"❌ Erreur: {str(e)}"
 
-    return render_template("index.html")
+    return render_template("dashboard.html", **get_dashboard_data())
+
+@app.route("/confirmation")
+def confirmation():
+    if "logged_in" not in session:
+        return redirect(url_for("login"))
+    return render_template("confirmation.html", **get_dashboard_data())
+
+def get_dashboard_data():
+    data = sheet.get_all_values()[2:]
+    latest_entries = data[-3:][::-1]
+    intake_data = []
+    for row in data[-30:]:
+        date_str, time_str, qty = row[1], row[2], row[4]
+        if date_str and time_str and qty:
+            try:
+                dt = datetime.strptime(date_str + " " + time_str, "%Y-%m-%d %H:%M:%S")
+                intake_data.append({"x": dt.isoformat(), "y": int(qty)})
+            except:
+                continue
+
+    days_old = (datetime.now().date() - datetime(2025, 7, 23).date()).days
+    if days_old == 0:
+        intake_min, intake_max = 5, 10
+    elif days_old == 1:
+        intake_min, intake_max = 10, 20
+    elif days_old == 2:
+        intake_min, intake_max = 20, 30
+    elif 3 <= days_old <= 4:
+        intake_min, intake_max = 30, 60
+    elif 5 <= days_old <= 6:
+        intake_min, intake_max = 60, 90
+    else:
+        intake_min, intake_max = 90, 150
+
+    return {
+        "recent": latest_entries,
+        "chart_data": intake_data,
+        "intake_min": intake_min,
+        "intake_max": intake_max
+    }
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if request.form["password"] == PASSWORD:
             session["logged_in"] = True
-            return redirect(url_for("index"))
+            return redirect(url_for("dashboard"))
         else:
             return "❌ Mot de passe incorrect", 401
     return render_template("login.html")
