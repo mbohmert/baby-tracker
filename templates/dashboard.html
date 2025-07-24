@@ -1,138 +1,114 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.6">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <title>Tableau de bord d'Anatole</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="fr"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Tableau de bord d'Anatole&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/chart.js"&gt;&lt;/script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body class="container py-4"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h2 class="mb-4"&gt;Tableau de bord d'Anatole&lt;/h2&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>{% with messages = get_flashed_messages(with_categories=true) %}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{% if messages %}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{% for category, message in messages %}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="alert alert-{{ category }} text-center"&gt;{{ message }}&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{% endfor %}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>{% endif %}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>{% endwith %}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h5&gt;🍼 Dernières 3 tétées&lt;/h5&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;table class="table"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;tr&gt;&lt;th&gt;Date&lt;/th&gt;&lt;th&gt;Heure&lt;/th&gt;&lt;th&gt;Quantité (mL)&lt;/th&gt;&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;tbody&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{% for row in recent %}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;td&gt;{{ row[1] }}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;td&gt;{{ row[2] }}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;td&gt;{{ row[4] }}&lt;/td&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/tr&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>{% endfor %}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/tbody&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/table&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h5 class="mt-5"&gt;📈 Courbe d'alimentation&lt;/h5&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;canvas id="milkChart" height="100"&gt;&lt;/canvas&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const ctx = document.getElementById('milkChart').getContext('2d');</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const chart = new Chart(ctx, {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>type: 'line',</p>
-<p class="p1"><span class="Apple-converted-space">            </span>data: {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>datasets: [{</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>label: 'Quantité (mL)',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>data: {{ chart_data | tojson }},</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>borderColor: 'blue',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>fill: false,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>tension: 0.2</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}, {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>label: 'Zone normale',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>data: {{ chart_data | tojson }},</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>backgroundColor: 'rgba(0, 255, 0, 0.1)',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>borderColor: 'rgba(0,0,0,0)',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>type: 'line',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>fill: '+1',</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>pointRadius: 0,</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>segment: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>backgroundColor: () =&gt; 'rgba(0, 255, 0, 0.1)'</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}]</p>
-<p class="p1"><span class="Apple-converted-space">            </span>},</p>
-<p class="p1"><span class="Apple-converted-space">            </span>options: {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>scales: {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>x: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>type: 'time',</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>time: {</p>
-<p class="p1"><span class="Apple-converted-space">                            </span>unit: 'hour'</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>},</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>y: {</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>min: {{ intake_min }},</p>
-<p class="p1"><span class="Apple-converted-space">                        </span>max: {{ intake_max }}</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>}</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>});</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;h5 class="mt-5"&gt;✍️ Ajouter une tétée&lt;/h5&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;form method="post"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="form-label"&gt;Date :&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="date" name="date" class="form-control" required&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="form-label"&gt;Heure :&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="time" name="time" class="form-control" required&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="form-label"&gt;Quantité (mL) :&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" name="milk" class="form-control" required&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="form-label"&gt;Change :&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;select name="changed" class="form-select"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option&gt;Oui&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option&gt;Non&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="form-label"&gt;Pipi :&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;select name="pee" class="form-select"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option&gt;Oui&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option&gt;Non&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="form-label"&gt;Caca :&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;select name="poo" class="form-select"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option&gt;Oui&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option&gt;Non&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="mb-3"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label class="form-label"&gt;Remarques :&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;textarea name="comment" rows="2" class="form-control"&gt;&lt;/textarea&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button type="submit" class="btn btn-success w-100"&gt;Enregistrer&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/form&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+<body class="container py-4">
+    <h2 class="mb-4">Tableau de bord d'Anatole</h2>
+
+    <h5>🍼 Dernières 3 tétées</h5>
+    <table class="table">
+        <thead>
+            <tr><th>Date</th><th>Heure</th><th>Quantité (mL)</th></tr>
+        </thead>
+        <tbody>
+            {% for row in recent %}
+            <tr>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+                <td>{{ row[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h5 class="mt-5">📈 Courbe d'alimentation</h5>
+    <canvas id="milkChart" height="100"></canvas>
+    <script>
+        const ctx = document.getElementById('milkChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Quantité (mL)',
+                    data: {{ chart_data | tojson }},
+                    borderColor: 'blue',
+                    fill: false,
+                    tension: 0.2
+                }, {
+                    label: 'Zone normale',
+                    data: {{ chart_data | tojson }},
+                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                    borderColor: 'rgba(0,0,0,0)',
+                    type: 'line',
+                    fill: '+1',
+                    pointRadius: 0,
+                    segment: {
+                        backgroundColor: () => 'rgba(0, 255, 0, 0.1)'
+                    }
+                }]
+            },
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'hour'
+                        }
+                    },
+                    y: {
+                        min: {{ intake_min }},
+                        max: {{ intake_max }}
+                    }
+                }
+            }
+        });
+    </script>
+
+    <h5 class="mt-5">✍️ Ajouter une tétée</h5>
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Date :</label>
+            <input type="date" name="date" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Heure :</label>
+            <input type="time" name="time" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Quantité (mL) :</label>
+            <input type="number" name="milk" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Change :</label>
+            <select name="changed" class="form-select">
+                <option>Oui</option>
+                <option>Non</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Pipi :</label>
+            <select name="pee" class="form-select">
+                <option>Oui</option>
+                <option>Non</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Caca :</label>
+            <select name="poo" class="form-select">
+                <option>Oui</option>
+                <option>Non</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Remarques :</label>
+            <textarea name="comment" rows="2" class="form-control"></textarea>
+        </div>
+        <button type="submit" class="btn btn-success w-100">Enregistrer</button>
+    </form>
 </body>
 </html>
