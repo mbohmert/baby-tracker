@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template, redirect, url_for, session
+from flask import Flask, request, render_template, redirect, url_for, session, flash
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
@@ -37,30 +37,32 @@ def dashboard():
             insert_row_index = last_row + 1
             new_row = ["", date, time, previous_formula, quantite, change, pipi, caca, remarques]
             sheet.insert_row(new_row, insert_row_index)
-            return redirect(url_for("confirmation"))
-        except Exception as e:
-            return f"❌ Erreur: {str(e)}"
+            flash("✅ Donnée enregistrée avec succès !", "success")
+        except Exception as err:
+            flash(f"❌ Erreur lors de l'enregistrement : {str(err)}", "danger")
 
     return render_template("dashboard.html", **get_dashboard_data())
 
-@app.route("/confirmation")
-def confirmation():
-    if "logged_in" not in session:
-        return redirect(url_for("login"))
-    return render_template("confirmation.html", **get_dashboard_data())
-
 def get_dashboard_data():
-    data = sheet.get_all_values()[2:]
-    latest_entries = data[-3:][::-1]
+    try:
+        data = sheet.get_all_values()
+        print("⚙️ Full raw sheet data:", data)
+        data = data[2:]  # skip first 2 header rows
+    except Exception as fetch_error:
+        print("❌ Failed to fetch sheet data:", fetch_error)
+        return {"recent": [], "chart_data": [], "intake_min": 0, "intake_max": 0}
+
+    latest_entries = data[-3:][::-1] if len(data) >= 3 else data[::-1]
     intake_data = []
+
     for row in data[-30:]:
-        date_str, time_str, qty = row[1], row[2], row[4]
-        if date_str and time_str and qty:
-            try:
-                dt = datetime.strptime(date_str + " " + time_str, "%Y-%m-%d %H:%M:%S")
-                intake_data.append({"x": dt.isoformat(), "y": int(qty)})
-            except:
-                continue
+        try:
+            date_str, time_str, qty = row[1], row[2], row[4]
+            dt = datetime.strptime(date_str + " " + time_str, "%d/%m/%Y %H:%M:%S")
+            intake_data.append({"x": dt.isoformat(), "y": int(qty)})
+        except Exception as parse_error:
+            print(f"⛔ Skipping row: {row} — Reason: {parse_error}")
+            continue
 
     days_old = (datetime.now().date() - datetime(2025, 7, 23).date()).days
     if days_old == 0:
