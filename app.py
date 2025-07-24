@@ -41,21 +41,29 @@ def dashboard():
         except Exception as err:
             flash(f"❌ Erreur lors de l'enregistrement : {str(err)}", "danger")
 
-    return render_template("dashboard.html", **get_dashboard_data())
+    try:
+        context = get_dashboard_data()
+    except Exception as error:
+        flash(f"❌ Erreur de lecture Google Sheet : {str(error)}", "danger")
+        context = {"recent": [], "chart_data": [], "intake_min": 0, "intake_max": 200}
+
+    return render_template("dashboard.html", **context)
 
 def get_dashboard_data():
-    data = sheet.get_all_values()[2:]
+    data = sheet.get_all_values()
+    print("⚙️ Raw Sheet Data:", data)
+    data = data[2:]
     latest_entries = data[-3:][::-1] if len(data) >= 3 else data[::-1]
     intake_data = []
 
     for row in data[-30:]:
-        date_str, time_str, qty = row[1], row[2], row[4]
-        if date_str and time_str and qty:
-            try:
-                dt = datetime.strptime(date_str + " " + time_str, "%d/%m/%Y %H:%M")
-                intake_data.append({"x": dt.isoformat(), "y": int(qty)})
-            except:
-                continue
+        try:
+            date_str, time_str, qty = row[1], row[2], row[4]
+            dt = datetime.strptime(date_str + " " + time_str, "%d/%m/%Y %H:%M:%S")
+            intake_data.append({"x": dt.isoformat(), "y": int(qty)})
+        except Exception as e:
+            print(f"⛔ Skipped row: {row} → {e}")
+            continue
 
     days_old = (datetime.now().date() - datetime(2025, 7, 23).date()).days
     if days_old == 0:
