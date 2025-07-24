@@ -3,11 +3,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 app = Flask(__name__)
-
-# 🔐 CHANGE THIS to something secret and random
-app.secret_key = "a-very-secret-key"
-
-# ✅ Set your chosen password here
+app.secret_key = "a-very-secret-key"  # Replace with your own secret key
 PASSWORD = "anatole"
 
 # Google Sheets setup
@@ -31,21 +27,13 @@ def index():
         remarques = request.form["comment"]
 
         try:
-            # Get the last filled row in column B (date)
             col_b = sheet.col_values(2)
             last_row = len(col_b)
-
-            # Copy the previous formula from column D (Temps entre repas)
-            previous_formula = sheet.cell(last_row, 4).value  # Column D = 4
-
-            # Build new row
+            previous_formula = sheet.cell(last_row, 4).value  # Column D
+            insert_row_index = last_row + 1
             new_row = ["", date, time, previous_formula, quantite, change, pipi, caca, remarques]
-
-            # Insert the row just below the last one
-            sheet.insert_row(new_row, last_row + 1)
-
+            sheet.insert_row(new_row, insert_row_index)
             return "✅ Données enregistrées avec succès !"
-
         except Exception as e:
             return f"❌ Erreur lors de l'enregistrement: {str(e)}"
 
@@ -59,15 +47,7 @@ def login():
             return redirect(url_for("index"))
         else:
             return "❌ Mot de passe incorrect", 401
-
-    return '''
-        <form method="post">
-            <h3>Connexion</h3>
-            <label>Mot de passe :</label><br>
-            <input type="password" name="password">
-            <button type="submit">Se connecter</button>
-        </form>
-    '''
+    return render_template("login.html")
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5050)
