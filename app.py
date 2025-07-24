@@ -8,7 +8,7 @@ app = Flask(__name__)
 app.secret_key = "a-very-secret-key"
 
 # ✅ Set your chosen password here
-PASSWORD = anatole
+PASSWORD = "anatole"
 
 # Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
