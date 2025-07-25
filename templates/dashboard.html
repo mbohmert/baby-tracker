@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Tableau de bord d'Anatole</title>
@@ -9,7 +9,13 @@
 </head>
 <body class="container py-4">
     <h2 class="mb-4">Tableau de bord d'Anatole</h2>
-
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} text-center">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     <h5>🍼 Dernières 3 tétées</h5>
     <table class="table">
         <thead>
@@ -25,7 +31,6 @@
             {% endfor %}
         </tbody>
     </table>
-
     <h5 class="mt-5">📈 Courbe d'alimentation</h5>
     <canvas id="milkChart" height="100"></canvas>
     <script>
@@ -39,17 +44,6 @@
                     borderColor: 'blue',
                     fill: false,
                     tension: 0.2
-                }, {
-                    label: 'Zone normale',
-                    data: {{ chart_data | tojson }},
-                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
-                    borderColor: 'rgba(0,0,0,0)',
-                    type: 'line',
-                    fill: '+1',
-                    pointRadius: 0,
-                    segment: {
-                        backgroundColor: () => 'rgba(0, 255, 0, 0.1)'
-                    }
                 }]
             },
             options: {
@@ -68,17 +62,8 @@
             }
         });
     </script>
-
     <h5 class="mt-5">✍️ Ajouter une tétée</h5>
     <form method="post">
-        <div class="mb-3">
-            <label class="form-label">Date :</label>
-            <input type="date" name="date" class="form-control" required>
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Heure :</label>
-            <input type="time" name="time" class="form-control" required>
-        </div>
         <div class="mb-3">
             <label class="form-label">Quantité (mL) :</label>
             <input type="number" name="milk" class="form-control" required>

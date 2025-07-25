@@ -22,8 +22,10 @@ def dashboard():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-        date = request.form["date"]
-        time = request.form["time"]
+        now = datetime.now()
+        date = now.strftime("%d/%m/%Y")
+        time = now.strftime("%I:%M:%S %p")
+
         quantite = request.form["milk"]
         change = request.form["changed"]
         pipi = request.form["pee"]
@@ -50,16 +52,14 @@ def dashboard():
     return render_template("dashboard.html", **context)
 
 def get_dashboard_data():
-    data = sheet.get_all_values()
-    print("⚙️ Raw Sheet Data:", data)
-    data = data[2:]
+    data = sheet.get_all_values()[2:]
     latest_entries = data[-3:][::-1] if len(data) >= 3 else data[::-1]
     intake_data = []
 
     for row in data[-30:]:
         try:
             date_str, time_str, qty = row[1], row[2], row[4]
-            dt = datetime.strptime(date_str + " " + time_str, "%d/%m/%Y %H:%M:%S")
+            dt = datetime.strptime(date_str + " " + time_str, "%d/%m/%Y %I:%M:%S %p")
             intake_data.append({"x": dt.isoformat(), "y": int(qty)})
         except Exception as e:
             print(f"⛔ Skipped row: {row} → {e}")
